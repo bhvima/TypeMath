@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>MathTyper</title>
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+	<script>
+		function convert() {
+			var input = document.getElementById('input').value.trim();
+			var output = document.getElementById('output');
+			output.innerHTML = '';
+			MathJax.texReset();
+			var options = MathJax.getMetricsFor(output);
+			options.display = true;
+			MathJax.tex2chtmlPromise(input, options).then(function (node) {
+				output.appendChild(node);
+				MathJax.startup.document.clear();
+				MathJax.startup.document.updateDocument();
+			}).catch(function (err) {
+				output.appendChild(document.createElement('pre')).appendChild(document.createTextNode(err.message));
+			}).then(function () {
+			});
+		}
+	</script>
+
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+	<textarea class = "split" id = "input" oninput="convert()"></textarea>
+	<div class = "split" id = "output">
+	</div>
+</body>
+</html>
