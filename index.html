@@ -7,28 +7,167 @@
 	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 	<script>
 		function convert() {
-			var input = document.getElementById('input').value.trim();
+			var input = document.getElementById('input').getElementsByTagName("div");
+
 			var output = document.getElementById('output');
 			output.innerHTML = '';
 			MathJax.texReset();
-			var options = MathJax.getMetricsFor(output);
-			options.display = true;
-			MathJax.tex2chtmlPromise(input, options).then(function (node) {
-				output.appendChild(node);
-				MathJax.startup.document.clear();
-				MathJax.startup.document.updateDocument();
-			}).catch(function (err) {
-				output.appendChild(document.createElement('pre')).appendChild(document.createTextNode(err.message));
-			}).then(function () {
-			});
+			
+			for(var i = 0; i < input.length; i++) {
+				var out = document.createElement("div");
+				var options = MathJax.getMetricsFor(out);
+				options.display = true;
+				//var inp = input[i].cloneNode(true);
+				//while (inp.firstChild) {
+				//	inp.removeChild(inp.lastChild);
+				//}
+				//console.log(inp.innerText);
+				MathJax.tex2chtmlPromise(input[i].innerText.trim(), options).then(function (node) {
+					out.appendChild(node);
+					MathJax.startup.document.clear();
+					MathJax.startup.document.updateDocument();
+				}).catch(function (err) {
+					out.appendChild(document.createElement('pre')).appendChild(document.createTextNode(err.message));
+				}).then(function () {
+				});
+				output.appendChild(out);
+			}
 		}
 	</script>
-
 	<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-	<textarea class = "split" id = "input" oninput="convert()"></textarea>
+	<div class = "split" id = "input">
+	</div>
 	<div class = "split" id = "output">
 	</div>
+	<script>
+		class TextNode {
+			
+			constructor(text) {
+				this.text = text;
+				this.cursor = 0
+				this.next = null;
+				this.prev = null;
+			}
+		}
+
+		class InputField {
+			
+			constructor() {
+				this.head = new TextNode("");
+				this.current = this.head;
+			}
+
+			add() {
+				var node = new TextNode("");
+				node.next = this.current.next;
+				if (node.next != null)
+					node.next.prev = node;
+				node.prev = this.current;
+				this.current.next = node;
+				this.current = node;
+			}
+
+			up() {
+				if (this.current.prev != null) {
+					if(this.current.prev.text.length < this.current.cursor)
+						this.current.prev.cursor = this.current.prev.text.length;
+					else
+						this.current.prev.cursor = this.current.cursor;
+					this.current = this.current.prev;
+				}
+			}
+
+			down() {
+				if (this.current.next != null) {
+					if(this.current.next.text.length < this.current.cursor)
+						this.current.next.cursor = this.current.next.text.length;
+					else
+						this.current.next.cursor = this.current.cursor;
+					this.current = this.current.next;
+				}
+			}
+
+			left() {
+				if (this.current.cursor != 0)
+					this.current.cursor -= 1;
+			}
+
+			right() {
+				if (this.current.cursor != this.current.text.length)
+					this.current.cursor += 1;
+			}
+
+			remove() {
+				if (this.current == this.head){
+					if(this.current.next != null) {
+						this.head = this.current.next;
+						this.current = this.head;
+					}
+				}
+				else {
+					this.current.prev.next = this.current.next;
+					if(this.current.next != null)
+						this.current.next.prev = this.current.prev;
+					this.current = this.current.prev;
+				}
+				this.current.cursor = this.current.text.length;
+			}
+
+			render() {
+				var container = document.getElementById("input");
+				container.innerHTML = '';
+				var curr = this.head;
+				while(curr != null) {
+					var elem = document.createElement("div");
+					elem.innerText = curr.text;
+					if (this.current == curr)
+						elem.innerHTML = curr.text.slice(0, curr.cursor) + "<span id = \"cursor\">|</span>" + curr.text.slice(curr.cursor);
+					container.append(elem);
+					curr = curr.next;
+				}
+				convert();
+			}
+
+			update(char) {
+				if (char == "Backspace"){
+					if (this.current.cursor != 0) {
+						this.current.text = this.current.text.slice(0, this.current.cursor - 1) + this.current.text.slice(this.current.cursor);
+						this.current.cursor -= 1;
+					}
+					else if (this.current.text.length == 0) {
+						this.remove();
+					}
+				}
+				else {
+					this.current.text = this.current.text.slice(0, this.current.cursor) + char + this.current.text.slice(this.current.cursor);
+					this.current.cursor += 1;
+				}
+			}
+		}
+
+	var i = new InputField();
+
+	function keyDown(e) {
+		if (e.key.length == 1 || e.key == "Backspace") {
+			i.update(e.key);
+		} else if (e.key == "ArrowLeft") {
+			i.left();
+		} else if (e.key == "ArrowRight") {
+			i.right();
+		} else if (e.key == "ArrowDown") {
+			i.down();
+		} else if (e.key == "ArrowUp") {
+			i.up();
+		} else if (e.key == "Enter") {
+			i.add();
+		}
+		i.render();
+	}
+
+	document.addEventListener('keydown', keyDown);
+	
+	</script>
 </body>
 </html>

@@ -8,8 +8,13 @@
 	padding-top: 20px;
 }
 
+div {
+	min-height: 20px;
+}
+
 #input {
 	left: 0;
+	white-space:pre;
 }
 
 #output {
