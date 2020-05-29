@@ -4,19 +4,44 @@
 	position: fixed;
 	z-index: 1;
 	top: 0;
-	overflow-x: hidden;
-	padding-top: 20px;
-}
-
-div {
-	min-height: 20px;
+	padding-top: 5px;
 }
 
 #input {
 	left: 0;
-	white-space:pre;
+	white-space: pre-wrap;
+	background-color: #061b22;
+	color: white;
+	font-family: "Courier New", Courier, monospace;
+	overflow-y: scroll;
+}
+
+#node {
+	min-height: 20px;
+	padding-left: 20px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	word-wrap: break-word;
+}
+
+@keyframes blink {
+  0%,50%  {opacity: 0%}
+  51%, 100% {opacity: 100%;}
+}
+
+#cursor {
+	font-size: 130%;
+	font-weight: 400;
+	font-family: 'Open Sans', sans-serif;
+	animation-name: blink;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
 }
 
 #output {
 	right: 0;
+	overflow-x: scroll;
+	box-sizing: border-box;
+	padding-left: 10px;
+	padding-right: 10px;
 }

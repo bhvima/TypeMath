@@ -7,11 +7,11 @@
 	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 	<script>
 		function convert() {
-			var input = document.getElementById('input').getElementsByTagName("div");
+			var input = document.getElementById('input').getElementsByTagName("p");
 
 			var output = document.getElementById('output');
-			output.innerHTML = '';
 			MathJax.texReset();
+			output.innerHTML = "";
 			
 			for(var i = 0; i < input.length; i++) {
 				var out = document.createElement("div");
@@ -21,7 +21,6 @@
 				//while (inp.firstChild) {
 				//	inp.removeChild(inp.lastChild);
 				//}
-				//console.log(inp.innerText);
 				MathJax.tex2chtmlPromise(input[i].innerText.trim(), options).then(function (node) {
 					out.appendChild(node);
 					MathJax.startup.document.clear();
@@ -120,7 +119,8 @@
 				container.innerHTML = '';
 				var curr = this.head;
 				while(curr != null) {
-					var elem = document.createElement("div");
+					var elem = document.createElement("p");
+					elem.setAttribute("id", "node");
 					elem.innerText = curr.text;
 					if (this.current == curr)
 						elem.innerHTML = curr.text.slice(0, curr.cursor) + "<span id = \"cursor\">|</span>" + curr.text.slice(curr.cursor);
