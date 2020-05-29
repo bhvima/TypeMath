@@ -17,11 +17,14 @@
 				var out = document.createElement("div");
 				var options = MathJax.getMetricsFor(out);
 				options.display = true;
-				//var inp = input[i].cloneNode(true);
-				//while (inp.firstChild) {
-				//	inp.removeChild(inp.lastChild);
-				//}
-				MathJax.tex2chtmlPromise(input[i].innerText.trim(), options).then(function (node) {
+				if(input[i].firstElementChild != null){
+					var inp = input[i].cloneNode(true);
+					inp.removeChild(inp.firstElementChild);
+				}
+				else {
+					var inp = input[i];
+				}
+				MathJax.tex2chtmlPromise(inp.innerText.trim(), options).then(function (node) {
 					out.appendChild(node);
 					MathJax.startup.document.clear();
 					MathJax.startup.document.updateDocument();
@@ -41,6 +44,13 @@
 	<div class = "split" id = "output">
 	</div>
 	<script>
+
+		function sanitize(text) {
+				const encoder = document.createElement('div')
+				encoder.innerText = text
+				return encoder.innerHTML;
+		}
+
 		class TextNode {
 			
 			constructor(text) {
@@ -123,7 +133,7 @@
 					elem.setAttribute("id", "node");
 					elem.innerText = curr.text;
 					if (this.current == curr)
-						elem.innerHTML = curr.text.slice(0, curr.cursor) + "<span id = \"cursor\">|</span>" + curr.text.slice(curr.cursor);
+						elem.innerHTML = sanitize(curr.text.slice(0, curr.cursor)) + "<span id = \"cursor\">|</span>" + sanitize(curr.text.slice(curr.cursor));
 					container.append(elem);
 					curr = curr.next;
 				}
